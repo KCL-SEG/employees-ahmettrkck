@@ -10,7 +10,7 @@ class Employee:
         pass
 
 class SalaryContract(Employee):
-    def __init__(self, name, salary, commission):
+    def __init__(self, name, salary, commission = None):
         super().__init__(name, commission)
         self.salary = salary
 
@@ -22,7 +22,7 @@ class SalaryContract(Employee):
         return f"{self.name} works on a monthly salary of {self.salary}{commission_info}. Their total pay is {self.get_pay()}."
 
 class HourlyContract(Employee):
-    def __init__(self, name, hours, hourly, commission):
+    def __init__(self, name, hours, hourly, commission = None):
         super().__init__(name, commission)
         self.hours = hours
         self.hourly = hourly
