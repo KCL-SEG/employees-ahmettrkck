@@ -1,64 +1,83 @@
-"""Employee pay calculator."""
-
 class Employee:
-    def __init__(self, name, salary_rate=None, hourly_rate=None, hours=None, bonus_commision=None, contract_commision=None, contract_commision_rate=None):
+    def __init__(self, name, commission = None):
         self.name = name
-        self.salary_rate = salary_rate
-        self.hourly_rate = hourly_rate
-        self.hours = hours
-        self.bonus_commision = bonus_commision
-        self.contract_commision = contract_commision
-        self.contract_commision_rate = contract_commision_rate
+        self.commission = commission
 
     def get_pay(self):
-        total_pay = 0
-        if self.salary_rate:
-            total_pay+= self.salary_rate
-        if self.hourly_rate and self.hours:
-            total_pay += self.hourly_rate * self.hours
-        if self.contract_commision and self.contract_commision_rate:
-            total_pay += self.contract_commision * self.contract_commision_rate
-        if self.bonus_commision:
-            total_pay+= self.bonus_commision
-        return total_pay
-
-    def get_components(self):
-        components = []
-
-        if self.salary_rate:
-            components.append(f'a monthly salary of {self.salary_rate}')
-        if self.hourly_rate:
-            components.append(f'a contract of {self.hours} hours at {self.hourly_rate}/hour')
-        if self.contract_commision and self.contract_commision_rate:
-            components.append(f'receives a commission for {self.contract_commision} contract(s) at {self.contract_commision_rate}/contract')
-        if self.bonus_commision:
-            components.append(f'receives a bonus commission of {self.bonus_commision}')
-
-        return components
+        pass
 
     def __str__(self):
-        components = self.get_components()
-        components_str = ' and '.join(components) if components else ''
-        total_pay = self.get_pay()
-        return f'{self.name} works on {components_str}. Their total pay is {total_pay}.'
+        pass
+
+class SalaryContract(Employee):
+    def __init__(self, name, salary, commission):
+        super().__init__(name, commission)
+        self.salary = salary
+
+    def get_pay(self):
+        return self.salary + self.commission.get_commission() if self.commission else self.salary
+
+    def __str__(self):
+        commission_info = self.commission.get_string() if self.commission else ""
+        return f"{self.name} works on a monthly salary of {self.salary}{commission_info}. Their total pay is {self.get_pay()}."
+
+class HourlyContract(Employee):
+    def __init__(self, name, hours, hourly, commission):
+        super().__init__(name, commission)
+        self.hours = hours
+        self.hourly = hourly
+
+    def get_pay(self):
+        return self.hours * self.hourly + self.commission.get_commission() if self.commission else self.hours * self.hourly
+
+    def __str__(self):
+        commission_info = self.commission.get_string() if self.commission else ""
+        return f"{self.name} works on a contract of {self.hours} hours at {self.hourly}/hour{commission_info}. Their total pay is {self.get_pay()}."
+
+
+class Commission:
+    def get_commission(self):
+        pass
+
+    def get_string(self):
+        pass
+
+class FixedBonus(Commission):
+    def __init__(self, fixed_bonus):
+        self.fixed_bonus = fixed_bonus
+
+    def get_commission(self):
+        return self.fixed_bonus
+
+    def get_string(self):
+        return f' and receives a bonus commission of {self.fixed_bonus}'
+
+class UnfixedBonus(Commission):
+    def __init__(self, no_contracts, per_contract):
+        self.no_contracts = no_contracts
+        self.per_contract = per_contract
+
+    def get_commission(self):
+        return self.no_contracts * self.per_contract
+
+    def get_string(self):
+        return f' and receives a commission for {self.no_contracts} contract(s) at {self.per_contract}/contract'
 
 # Billie works on a monthly salary of 4000.  Their total pay is 4000.
-billie = Employee('Billie', salary_rate=4000)
+billie = SalaryContract('Billie', 4000)
 
 # Charlie works on a contract of 100 hours at 25/hour.  Their total pay is 2500.
-charlie = Employee('Charlie', hourly_rate=25, hours=100)
+charlie = HourlyContract('Charlie', 100, 25)
 
 # Renee works on a monthly salary of 3000 and receives a commission for 4 contract(s) at 200/contract.  Their total pay is 3800.
-renee = Employee('Renee', salary_rate=3000, contract_commision_rate=200, contract_commision=4)
+renee = SalaryContract('Renee', 3000, UnfixedBonus(4, 200))
 
-
-# Jan works on a contract of 150 hours at 25/hour and receives a commission for 3 contract(s) at 220/contract. Their total pay is 4410.
-jan = Employee('Jan', hours=150, hourly_rate=25, contract_commision=3, contract_commision_rate=220)
-
+# Jan works on a contract of 150 hours at 25/hour and receives a commission for 3 contract(s) at 220/contract.  Their total pay is 4410.
+jan = HourlyContract('Jan', 150, 25, UnfixedBonus(3, 220))
 
 # Robbie works on a monthly salary of 2000 and receives a bonus commission of 1500.  Their total pay is 3500.
-robbie = Employee('Robbie', salary_rate=2000, bonus_commision=1500)
-
+robbie = SalaryContract('Robbie', 2000, FixedBonus(1500))
 
 # Ariel works on a contract of 120 hours at 30/hour and receives a bonus commission of 600.  Their total pay is 4200.
-ariel = Employee('Ariel', hours=120, hourly_rate=30, bonus_commision=600)
+ariel = HourlyContract('Ariel', 120, 30, FixedBonus(600))
+
